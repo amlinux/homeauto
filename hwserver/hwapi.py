@@ -1,6 +1,7 @@
 import re
 import json as json_module
 import cgi
+import logging
 from concurrence import Channel, TimeoutError
 from hardware import EventReceiver
 
@@ -33,6 +34,7 @@ class HomeLogicAPIServer(object):
             start_response('400 Bad Request', [('Content-Type', 'text/html')])
             return ['<html><body><h1>400 Bad Request</h1>%s</body></html>' % e.msg]
         except Exception as e:
+            logging.exception(e)
             start_response('500 Internal Server Error', [('Content-Type', 'text/html')])
             return ['<html><body><h1>500 Internal Server Error</h1>%s</body></html>' % e.__class__.__name__]
 
@@ -67,7 +69,7 @@ class HomeLogicAPIServer(object):
         params = {}
         params_detail = {}
         if fs.list:
-            for key in self.fs.keys():
+            for key in fs.keys():
                 params[key] = fs.getlist(key)
             for ent in fs.list:
                 try:
@@ -113,7 +115,7 @@ class HomeLogicAPIServer(object):
             ch = Channel()
             self.monitor_waiters.append(ch)
             try:
-                state = self.json(start_response, ch.receive(10))
+                state = ch.receive(10)
             except TimeoutError:
                 pass
         return self.json(start_response, state)
@@ -123,7 +125,5 @@ class HomeLogicAPIServer(object):
         self.monitor_waiters = []
         state = self.monitor_state()
         for ch in waiters:
-            try:
-                ch.send(state, 3)
-            except TimeoutError:
-                pass
+            if ch.has_receiver():
+                ch.send(state)
