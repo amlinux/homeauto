@@ -19,7 +19,7 @@ class HomeLogic(object):
     def relay_set_all(self, value=True):
         changed = False
         for relay in xrange(1, 31):
-            if self.relayState[relay] != value:
+            if self.relayState.get(relay, None) != value:
                 changed = True
                 self.relayState[relay] = value
         if not changed:
@@ -36,7 +36,6 @@ class HomeLogic(object):
         self.relay_set_all(False)
 
     def event_recv(self, event):
-        print event
         data = event["data"]
         cmd = data.pop(0)
         if cmd == ord('B'):

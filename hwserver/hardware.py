@@ -1,7 +1,10 @@
 from concurrence import Tasklet, Channel, TimeoutError
 from concurrence.extra import Lock
+from concurrence.timer import Timeout
 from serial import SerialStream
 import logging
+import time
+import random
 
 def crc(crc, data):
     "Accepts previous CRC byte and data byte. Returns new CRC"
@@ -45,15 +48,19 @@ class Host(object):
         self.dispatcher = dispatcher
         self.stream = SerialStream(devname)
         self._next_pkt_id = 0
-        self._in_calibrate = False
+        self._devname = devname
+        self._sendlock = Lock()
+        self._calibrated = False
+        Tasklet.new(self.auto_calibrate_baudrate)()
 
     def send_raw(self, buf):
         "Send raw data without any checksuming and headers"
-        #print "Sending: %s" % (", ".join(["0x%02x" % a for a in buf]))
-        buf = ''.join([chr(a) for a in buf])
-        with self.stream.get_writer() as writer:
-            writer.write_bytes(buf)
-            writer.flush()
+        with self._sendlock:
+            print "%s sent: %s" % (self._devname, ", ".join(["0x%02x" % d for d in buf]))
+            buf = ''.join([chr(a) for a in buf])
+            with self.stream.get_writer() as writer:
+                writer.write_bytes(buf)
+                writer.flush()
 
     def flush(self):
         self.stream.flush()
@@ -70,37 +77,51 @@ class Host(object):
         buf.append(_crc)
         self.send_raw(buf)
 
+    def ping(self):
+        while True:
+            pkt = [0xf2]
+            for i in xrange(0, 8):
+                pkt.append(random.randint(0, 255))
+            self.send(pkt)
+            Tasklet.sleep(7)
+
     def loop(self):
         "Infinitely read serial input and parse packets"
         with self.stream.get_reader() as reader:
             while True:
                 try:
-                    # waiting for preamble
+                    # wait for preamble
                     while True:
                         data = ord(reader.read_bytes(1))
                         if data == 0x5a:
                             break
-                    # reading packet length
+                    # read packet length
                     _crc = 0
                     pktlen = ord(reader.read_bytes(1))
                     _crc = crc(_crc, pktlen)
-                    # reading packet data
+                    # read packet data
                     if pktlen > 0:
                         data = []
-                        for d in reader.read_bytes(pktlen):
-                            d = ord(d)
-                            data.append(d)
-                            _crc = crc(_crc, d)
-                        # reading CRC
-                        _crc = crc(_crc, ord(reader.read_bytes(1)))
-                        # checking CRC
-                        if _crc == 0:
-                            print "Packet received successfully: %s" % (", ".join(["0x%02x" % d for d in data]))
-                            if len(data) == 1 and data[0] == ord('R'):
-                                if not self._in_calibrate:
-                                    self._in_calibrate = True
-                                    Tasklet.net(self.auto_calibrate_baudrate)()
-                            self.dispatcher.receive(data)
+                        try:
+                            with Timeout.push(1):
+                                for d in reader.read_bytes(pktlen):
+                                    d = ord(d)
+                                    data.append(d)
+                                    _crc = crc(_crc, d)
+                                # read CRC
+                                _crc = crc(_crc, ord(reader.read_bytes(1)))
+                        except TimeoutError:
+                            pass
+                        else:
+                            # check CRC
+                            if _crc == 0:
+                                print "%s received: %s" % (self._devname, ", ".join(["0x%02x" % d for d in data]))
+                                if self._calibrated:
+                                    if len(data) == 1 and (data[0] == ord('I') or data[0] == 0xf2):
+                                        self._calibrated = False
+                                        Tasklet.new(self.auto_calibrate_baudrate)()
+                                if self._calibrated or data[0] == 0xf0:
+                                    self.dispatcher.receive(data)
                 except Exception as e:
                     logging.exception(e)
 
@@ -116,18 +137,21 @@ class Host(object):
         "Perform baud rate calibration"
         req = BaudRateCalibrationRequest()
         try:
-            return self.dispatcher.request(req, timeout=3)
+            res = self.dispatcher.request(req, timeout=3)
+            self._calibrated = True
+            return res
         except TimeoutError:
             raise BaudRateCalibrationError()
 
     def auto_calibrate_baudrate(self):
-        try:
+        while True:
             try:
-                print "Calibrated baudrate: %s" % self.calibrate_baudrate()
-            except Exception as e:
-                print "Baudrate calibration failed: %s" % e
-        finally:
-            self._in_calibrate = False
+                print "%s calibrated: %s" % (self._devname, self.calibrate_baudrate())
+            except BaudRateCalibrationError:
+                print "%s caliration failed" % self._devname
+            else:
+                self._calibrated = True
+                break
 
     def next_pkt_id(self):
         self._next_pkt_id = (self._next_pkt_id + 1) % 256
@@ -289,7 +313,11 @@ class Dispatcher(object):
         "Infinitely reads input queue, performs requests and returns responses"
         host_tasks = []
         for host in self.hosts:
+            # Run loop
             task = Tasklet.new(host.loop)
+            host_tasks.append(task)
+            task()
+            task = Tasklet.new(host.ping)
             host_tasks.append(task)
             task()
         try:
