@@ -130,17 +130,20 @@ class Host(object):
         "Check host version (None if not available)"
         req = HostVersionRequest(self)
         try:
-            return self.dispatcher.request(req, timeout=3)
+            return self.dispatcher.request(req, timeout=10)
         except TimeoutError:
             return None
 
     def calibrate_baudrate(self):
         "Perform baud rate calibration"
-        req = BaudRateCalibrationRequest()
+        req = BaudRateCalibrationRequest(self)
         try:
             res = self.dispatcher.request(req, timeout=3)
-            self._calibrated = True
-            return res
+            if res:
+                self._calibrated = True
+                return res
+            else:
+                raise BaudRateCalibrationError()
         except TimeoutError:
             raise BaudRateCalibrationError()
 
@@ -149,7 +152,7 @@ class Host(object):
             try:
                 print "%s calibrated: %s" % (self._devname, self.calibrate_baudrate())
             except BaudRateCalibrationError:
-                print "%s caliration failed" % self._devname
+                print "%s calibration failed" % self._devname
             else:
                 self._calibrated = True
                 break
@@ -443,7 +446,7 @@ class BaudRateCalibrationRequest(Request):
             if data[1] == 0:
                 return data[2:]
             else:
-                raise BaudRateCalibrationError()
+                return []
 
     def send(self, host):
         Request.send(self, host)
