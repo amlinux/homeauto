@@ -79,10 +79,11 @@ class Host(object):
 
     def ping(self):
         while True:
-            pkt = [0xf2]
-            for i in xrange(0, 8):
-                pkt.append(random.randint(0, 255))
-            self.send(pkt)
+            if self._calibrated:
+                pkt = [0xf2]
+                for i in xrange(0, 8):
+                    pkt.append(random.randint(0, 255))
+                self.send(pkt)
             Tasklet.sleep(7)
 
     def loop(self):
@@ -120,7 +121,7 @@ class Host(object):
                                     if len(data) == 1 and (data[0] == ord('I') or data[0] == 0xf2):
                                         self._calibrated = False
                                         Tasklet.new(self.auto_calibrate_baudrate)()
-                                if self._calibrated or data[0] == 0xf0:
+                                if self._calibrated or data[0] == 0xf0 or data[0] == ord('E'):
                                     self.dispatcher.receive(data)
                 except Exception as e:
                     logging.exception(e)
