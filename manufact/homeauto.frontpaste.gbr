@@ -1,0 +1,15 @@
+G04 start of page 17 for group -4015 idx -4015 *
+G04 Title: (unknown), toppaste *
+G04 Creator: pcb 20091103 *
+G04 CreationDate: Чтв 05 Июл 2012 10:45:54 UTC *
+G04 For: aml *
+G04 Format: Gerber/RS-274X *
+G04 PCB-Dimensions: 1259850 590550 *
+G04 PCB-Coordinate-Origin: lower left *
+%MOIN*%
+%FSLAX25Y25*%
+%LNFRONTPASTE*%
+%ADD25R,0.0512X0.0512*%
+G54D25*X643307Y267714D02*X645669D01*
+X643307Y255904D02*X645669D01*
+M02*
