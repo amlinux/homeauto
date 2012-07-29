@@ -1,0 +1,19 @@
+___awdiv: CODE, 405 0 109
+_calc_crc: CODE, 1025 0 48
+_ports_init: CODE, 1213 0 30
+i1_calc_crc: CODE, 1073 0 47
+_main: CODE, 1243 0 27
+_usart_check_errors: CODE, 917 0 55
+_relay_update: CODE, 612 0 90
+_usart_send: CODE, 1152 0 31
+_usart_check: CODE, 25 0 196
+_isr: CODE, 4 0 18
+_usart_pkt_get: CODE, 1120 0 32
+_usart_pkt_put: CODE, 514 0 98
+_usart_init: CODE, 1270 0 26
+_usart_pkt_send: CODE, 780 0 76
+_usart_recv: CODE, 221 0 184
+i1_usart_check_errors: CODE, 972 0 53
+_usart_pkt_received: CODE, 702 0 78
+_usart_rbuf_store: CODE, 1296 0 17
+Total: 1215
