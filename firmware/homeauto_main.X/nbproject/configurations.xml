@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>../homeauto_relays.X/usart.h</itemPath>
       <itemPath>../homeauto_relays.X/crc.h</itemPath>
+      <itemPath>microlan.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -13,6 +14,7 @@
       <itemPath>../homeauto_relays.X/crc.c</itemPath>
       <itemPath>../homeauto_relays.X/usart.c</itemPath>
       <itemPath>main.c</itemPath>
+      <itemPath>microlan.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

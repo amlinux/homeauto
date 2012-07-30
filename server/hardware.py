@@ -1,4 +1,5 @@
 from concurrence import Tasklet, Channel, TimeoutError
+from concurrence.extra import Lock
 from serial import SerialStream
 
 def crc(crc, data):
@@ -123,7 +124,6 @@ class Request(object):
     """
     def __init__(self, host=None):
         self._waiters = []
-        self.primary_key = None
         self.failures = 0
         self.host = host
 
@@ -232,7 +232,7 @@ class FIFORequestQueue(RequestQueue):
 
     def find(self, primary_key):
         for req in self._fifo:
-            if req.primary_key == primary_key:
+            if getattr(req, "primary_key", None) == primary_key:
                 return req
 
 class Dispatcher(object):
@@ -251,12 +251,20 @@ class Dispatcher(object):
         Performs request. Response data is returned to the caller.
         TimeoutError raised when no valid response received.
         """
-        if request.primary_key:
-            existing_request = self.queue.find(request.primary_key)
-            if existing_request:
-                return existing_request.response(timeout)
-        self.queue.add(request)
-        return request.response(timeout)
+        def run():
+            primary_key = getattr(request, "primary_key", None)
+            if primary_key:
+                existing_request = self.queue.find(primary_key)
+                if existing_request:
+                    return existing_request.response(timeout)
+            self.queue.add(request)
+            return request.response(timeout)
+        lock = getattr(request, "lock", None)
+        if lock:
+            with lock:
+                return run()
+        else:
+            return run()
 
     def loop(self):
         "Infinitely reads input queue, performs requests and returns responses"
@@ -368,5 +376,5 @@ class BaudRateCalibrationRequest(Request):
     def send(self, host):
         Request.send(self, host)
         host.flush()
-        Tasklet.sleep(0.001)
+        Tasklet.sleep(0.005)
         host.send_raw([0x55])

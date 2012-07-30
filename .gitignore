@@ -26,3 +26,7 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+# MPLAB IDE
+Makefile-genesis.properties
+funclist

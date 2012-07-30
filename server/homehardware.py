@@ -1,4 +1,4 @@
-from hardware import Dispatcher, Host, Request
+from hardware import Dispatcher, Host, Request, Lock, ResponseError
 
 class HardwareError(Exception):
     pass
@@ -24,13 +24,15 @@ class HomeAutoDispatcher(Dispatcher):
         if ver2 != 1 and ver2 != 2:
             raise HardwareError("Unknown device version %s" % ver2)
         if ver1 == ver2:
-            raise HardwareError("Both devices has same version %s" % ver1)
+            raise HardwareError("Both devices have the same version %s" % ver1)
         if ver1 == 1:
             self.relayscontrol = host1
             self.maincontrol = host2
         else:
             self.maincontrol = host1
             self.relayscontrol = host2
+        print "Maincontrol calibration: %s" % self.maincontrol.calibrate_baudrate()
+        print "Relayscontrol calibration: %s" % self.relayscontrol.calibrate_baudrate()
 
     def route(self, request):
         hint = getattr(request, "routeHint", None)
@@ -82,4 +84,127 @@ class RelaySetRequest(Request):
         if len(data) == 1 and data[0] == ord('R'):
             return True
 
+class MicroLANError(ResponseError):
+    pass
+
+class MicroLANInvalidCommand(MicroLANError):
+    pass
+
+class MicroLANInvalidLine(MicroLANError):
+    pass
+
+class MicroLANReadError(MicroLANError):
+    pass
+
+class MicroLANNoPresence(MicroLANError):
+    pass
+
+class MicroLANCRCError(MicroLANError):
+    pass
+
+class MicroLANSearchError(MicroLANError):
+    pass
+
+class MicroLANNoDevices(MicroLANError):
+    pass
+
+class MicroLANListError(MicroLANError):
+    pass
+
+class MicroLANTemperatureError(MicroLANError):
+    pass
+
+class MicroLANRequest(Request):
+    """
+    MicroLAN request is a query to one of MicroLAN lines of the 
+    main controller. All such requests must be serialized
+    """
+    lock = Lock()
+
+    def __init__(self, line):
+        Request.__init__(self)
+        self.line = line
+        self.routeHint = "main"
+
+    def valid_response(self, data):
+        if len(data) >= 2 and data[0] == ord('M'):
+            if data[1] == 0xff:
+                raise MicroLANInvalidCommand()
+            elif data[1] == 0xfe:
+                raise MicroLANInvalidLine()
+            elif data[1] == 0xfd:
+                raise MicroLANReadError()
+            elif data[1] == 0xfc:
+                raise MicroLANNoPresence()
+            elif data[1] == 0xfb:
+                raise MicroLANCRCError()
+            elif data[1] == 0xfa:
+                raise MicroLANSearchError()
+            elif data[1] == 0xf9:
+                raise MicroLANNoDevices()
+            elif data[1] == 0:
+                return data[2:]
+            else:
+                raise MicroLANError()
+
+class MicroLANReadROM(MicroLANRequest):
+    def data(self):
+        return ['M', 1, self.line]
+
+class MicroLANSearchROM(MicroLANRequest):
+    def __init__(self, line, prefixlen, prefixbuf):
+        MicroLANRequest.__init__(self, line)
+        self.prefixlen = prefixlen
+        self.prefixbuf = prefixbuf
+
+    def data(self):
+        return ['M', 2] + [self.line, self.prefixlen] + self.prefixbuf
+
+class MicroLANListAll(object):
+    def __init__(self, dispatcher, line):
+        self.dispatcher = dispatcher
+        self.line = line
+
+    def execute(self):
+        try:
+            return self._withprefix(0, [0, 0, 0, 0, 0, 0, 0, 0])
+        except MicroLANNoPresence:
+            return []
+
+    def _withprefix(self, prefix, buf):
+        buf = self.dispatcher.request(MicroLANSearchROM(self.line, prefix, buf))
+        bits = buf[0]
+        buf = buf[1:]
+        if bits == 64:
+            return [buf]
+        elif bits > 64:
+            raise MicroLANListError()
+        else:
+            buf[bits / 8] &= ~(1 << (bits & 7))
+            sublist1 = self._withprefix(bits + 1, buf)
+            buf[bits / 8] |= (1 << (bits & 7))
+            sublist2 = self._withprefix(bits + 1, buf)
+            return sublist1 + sublist2
+
+class MicroLANConvertTemperature(MicroLANRequest):
+    def data(self):
+        return ['M', 3, self.line]
+
+class MicroLANReadTemperature(MicroLANRequest):
+    def __init__(self, line, dev):
+        MicroLANRequest.__init__(self, line)
+        self.dev = dev
+
+    def data(self):
+        return ['M', 4, self.line] + self.dev
+
+    def valid_response(self, data):
+        res = MicroLANRequest.valid_response(self, data)
+        if res is not None:
+            if len(res) != 2:
+                raise MicroLanTemperatureError()
+            temp = res[1] * 256 + res[0]
+            if temp & 0x8000:
+                temp = 0x8000 - temp
+            return temp / 16.0
 
