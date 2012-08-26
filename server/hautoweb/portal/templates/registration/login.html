@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{{ form.non_field_errors }}
+
+<form method="post" action="{% url django.contrib.auth.views.login %}" class="niceform">
+	{% csrf_token %}
+	<fieldset>
+		<p>
+			{{ form.username }}
+			<label for="username">{{ form.username.label_tag }}</label>
+			{{ form.username.errors }}
+		</p>
+		<p>
+			{{ form.password }}
+			<label for="password">{{ form.password.label_tag }}</label>
+			{{ form.password.errors }}
+		</p>
+	</fieldset>
+	<input type="submit" value="Вход" />
+	<input type="hidden" name="next" value="{{ next }}" />
+</form>
+
+{% endblock %}

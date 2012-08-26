@@ -3,19 +3,28 @@
 # Project path
 import sys
 import re
-path = re.sub(r'\/[^\/]+$', '', sys.argv[0])
+import os
+path = os.path.abspath(re.sub(r'\/[^\/]+$', '', sys.argv[0]))
 sys.path.append(path)
 
 from concurrence import dispatch, Tasklet
 from concurrence.http import WSGIServer
 from homehardware import HomeAutoDispatcher, MicroLANReadROM, HardwareError, MicroLANError, MicroLANListAll, MicroLANConvertTemperature, MicroLANReadTemperature
 import logging
-import os
-os.environ["DJANGO_SETTINGS_MODULE"] = "homeauto.settings"
-#import django.core.handlers.wsgi
+os.environ["DJANGO_SETTINGS_MODULE"] = "hautoweb.settings"
+import django.core.handlers.wsgi
+
+def setupLogging():
+    log = logging.getLogger("")
+    log.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    log.addHandler(ch)
 
 def main():
     try:
+        setupLogging()
+
         dispatcher = HomeAutoDispatcher()
         Tasklet.new(dispatcher.loop)()
         dispatcher.open_ports("/dev/ttyUSB0", "/dev/ttyUSB1")
@@ -92,33 +101,19 @@ def main():
         #Tasklet.new(a)()
         #Tasklet.new(b)()
 
+        # Running HTTP server
+        application = django.core.handlers.wsgi.WSGIHandler()
+        def app_wrapper(*args, **kwargs):
+            try:
+                return application(*args, **kwargs)
+            except Exception as e:
+                print e
+        server = WSGIServer(application)
+        server.serve(('localhost', 8080))
+
         while True:
             Tasklet.sleep(100)
 
-        #while True:
-        #    host1.send_raw([0x5a, 0x01, 0x45, 0x2d])
-        #    host2.send_raw([0x5a, 0x01, 0x45, 0x2d])
-
-        #print "Calibration relayscontrol: %s" % dispatcher.relayscontrol.calibrate_baudrate()
-        #print "Calibration maincontrol: %s" % dispatcher.maincontrol.calibrate_baudrate()
-
-        #print "Version1: %s" % host1.version()
-        #print "Version2: %s" % host2.version()
-
-#        # Running HTTP server
-#        application = django.core.handlers.wsgi.WSGIHandler()
-#        def app_wrapper(*args, **kwargs):
-#            try:
-#                return application(*args, **kwargs)
-#            except Exception as e:
-#                print e
-#        server = WSGIServer(application)
-#        server.serve(('localhost', 8080))
-
-#        while True:
-#            Tasklet.sleep(1)
-
-#        os._exit(0)
     except HardwareError as e:
         print e
         os._exit(1)
