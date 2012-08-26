@@ -92,7 +92,7 @@ class Host(object):
                     _crc = crc(_crc, ord(reader.read_bytes(1)))
                     # checking CRC
                     if _crc == 0:
-                        #print "Packet received successfully: %s" % (", ".join(["0x%02x" % d for d in data]))
+                        print "Packet received successfully: %s" % (", ".join(["0x%02x" % d for d in data]))
                         self.dispatcher.receive(data)
 
     def version(self):

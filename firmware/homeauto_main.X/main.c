@@ -6,6 +6,7 @@
 #include <htc.h>
 #include "../homeauto_relays.X/usart.h"
 #include "microlan.h"
+#include "buttons.h"
 
 __CONFIG(FCMEN_OFF & IESO_OFF & CLKOUTEN_OFF & BOREN_ON & CP_OFF & MCLRE_ON &
         PWRTE_OFF & WDTE_OFF & FOSC_INTOSC);
@@ -36,6 +37,7 @@ void interrupt isr()
     while (RCIF) {
         usart_recv();
     }
+    buttons_isr();
 }
 
 void usart_pkt_received(unsigned char cmd, unsigned char len)
@@ -86,6 +88,7 @@ void main()
     OSCCON = 0x78;
     microlan_init();
     usart_init();
+    buttons_init();
     ei();
     usart_pkt_send('R', 1);
     while (1) {
