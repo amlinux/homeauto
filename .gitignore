@@ -30,3 +30,5 @@ pip-log.txt
 # MPLAB IDE
 Makefile-genesis.properties
 funclist
+
+*.swp
