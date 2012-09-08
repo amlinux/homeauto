@@ -1,24 +1,31 @@
 # Django settings for hautoweb project.
 
+from hwserver.config import *
 import os
 import re
 path = os.path.abspath(re.sub(r'\/[^\/]+$', '', __file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-ADMINS = (
-    ('Alexander Lourier', 'aml@rulezz.ru'),
-)
+
+adminName = conf("web", "adminName")
+adminEmail = conf("web", "adminEmail")
+if adminName and adminEmail:
+    ADMINS = (
+        (adminName, adminEmail),
+    )
+else:
+    ADMINS = ()
 MANAGERS = ADMINS
 TIME_ZONE = None
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = conf("web", "language", 'en-us')
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 MEDIA_ROOT = ''
 MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/media/'
-SECRET_KEY = '0q^kdo+n3w!18(k4vc%)-g373oc!ak43-d08#w*2o+lu#^0gf2'
+SECRET_KEY = conf("web", "secretKey", 'nosecretkey')
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
@@ -41,12 +48,8 @@ TEMPLATE_DIRS = [
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "hauto",
-        "OPTIONS": {
-            "read_default_file": path + "/../my.cnf",
-            "init_command": "SET storage_engine=INNODB"
-        }
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": conf("database", "web", path + '/homeauto.db')
     }
 }
 

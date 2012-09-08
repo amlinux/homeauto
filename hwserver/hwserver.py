@@ -8,11 +8,11 @@ path = os.path.abspath(re.sub(r'\/[^\/]+$', '', sys.argv[0]))
 sys.path.append(path)
 
 from concurrence import dispatch, Tasklet
-from concurrence.http import WSGIServer
 from homehardware import HomeAutoDispatcher, MicroLANReadROM, HardwareError, MicroLANError, MicroLANListAll, MicroLANConvertTemperature, MicroLANReadTemperature
 import logging
-os.environ["DJANGO_SETTINGS_MODULE"] = "hautoweb.settings"
-import django.core.handlers.wsgi
+from config import *
+from hwapi import HardwareAPIServer
+from concurrence.http import WSGIServer
 
 def setupLogging():
     log = logging.getLogger("")
@@ -26,8 +26,11 @@ def main():
         setupLogging()
 
         dispatcher = HomeAutoDispatcher()
-        Tasklet.new(dispatcher.loop)()
-        dispatcher.open_ports("/dev/ttyUSB0", "/dev/ttyUSB1")
+#        Tasklet.new(dispatcher.loop)()
+#        dispatcher.open_ports(
+#            conf("hardware", "port1", "/dev/ttyS0"),
+#            conf("hardware", "port2", "/dev/ttyS1")
+#        )
 
 #        try:
 #            print "ReadROM: %s" % dispatcher.request(MicroLANReadROM(0))
@@ -101,15 +104,12 @@ def main():
         #Tasklet.new(a)()
         #Tasklet.new(b)()
 
-        # Running HTTP server
-        application = django.core.handlers.wsgi.WSGIHandler()
-        def app_wrapper(*args, **kwargs):
-            try:
-                return application(*args, **kwargs)
-            except Exception as e:
-                print e
-        server = WSGIServer(application)
-        server.serve(('localhost', 8080))
+        hwapi = HardwareAPIServer(dispatcher)
+        server = WSGIServer(hwapi)
+        server.serve((
+            conf('hwserver', 'addr', '127.0.0.1'),
+            confInt('hwserver', 'port', 8081)
+        ))
 
         while True:
             Tasklet.sleep(100)

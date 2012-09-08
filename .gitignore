@@ -32,3 +32,4 @@ Makefile-genesis.properties
 funclist
 
 *.swp
+*.db

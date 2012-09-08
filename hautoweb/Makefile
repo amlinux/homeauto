@@ -3,11 +3,10 @@
 all:
 
 syncdb:
-	django-admin syncdb --pythonpath=`pwd`
+	django-admin syncdb --pythonpath=/home/aml/electronics/homeauto --settings=hautoweb.settings
 
 resetDatabase:
-	mysql -e 'drop database if exists hauto'
-	mysql -e 'create database hauto'
+	rm -f homeauto.db
 	make syncdb
 
 clean:
