@@ -1,0 +1,223 @@
+room SRV Серверная
+    area 1 Слаботочная часть
+    area 2 Силовая часть
+room BDR Спальня
+    area 1 Слева от кровати
+    area 2 Справа от кровати
+    area 3 Выключатель света
+    area 4 Розетка около туалетного столика
+    area 5 Выключатель около туалетного столика
+    area 6 Вывод под освещение туалетного столика
+    area 7 Выключатель света в гардеробной
+    area 8 Телевизор
+    area 9 Вывод аудио
+    area 10 Кнопка выключения света слева от кровати
+    area 11 Сигнализация
+    area 12 Вывод под освещение комнаты
+    area 13 Вывод под спутниковую тарелку
+    area 14 Кнопка выключения света справа от кровати
+    area 15 Бра над левой частью кровати
+    area 16 Бра над правой частью кровати
+room CLK Гардеробная комната
+    area 1 Розетки
+    area 2 Вывод под освещение гардеробной
+room COR Коридор
+    area 1 Выключатель света
+    area 2 Розетки слева от входа
+    area 3 Розетки справа от входа
+    area 4 Вывод аудио
+    area 5 Вывод под освещение коридора 1
+    area 6 Розетки около спортивного уголка
+    area 7 Вывод под освещение коридора 2
+    area 8 Коробка под сигнализацию
+    area 9 Выключатель света у спортивного уголка
+    area 10 Вывод под датчики на пол
+room TLT Туалет
+    area 1 Выключатели
+    area 2 Вывод под розетки для всяких бритв
+    area 3 Вытяжной вентилятор
+    area 4 Вывод под освещение зеркала
+    area 5 Вывод под освещение туалета
+    area 6 Телефон
+    area 7 Вывод под освещение над зеркалом
+room KTC Кухня
+    area 1 Розетка для холодильника
+    area 2 Розетка для стиральной машины
+    area 3 Блок розеток над столом 1
+    area 4 Сантехнический уголок
+    area 5 Розетка для посудомоечной машины
+    area 6 Блок розеток над столом 2
+    area 7 Блок розеток над столом 3
+    area 8 Телевизор
+    area 9 Вывод под вытяжку
+    area 10 Вывод под освещение кухни
+    area 11 Вывод аудио
+    area 12 Розетки под обеденным столом
+    area 13 Вывод под освещение обеденной зоны
+    area 14 Выключатель у входа
+    area 15 Выключатель над обеденным столом
+    area 16 Вывод под датчики на пол
+    area 17 Вывод под освещение рабочей зоны
+    area 18 Вывод под розетку для плиты
+room LG1 Лоджия на кухне
+    area 1 Розетки под рабочим столом
+    area 2 Выключатель освещения
+    area 3 Вывод аудио
+    area 4 Вывод под освещение лоджии
+    area 5 Блок вентиляции
+    area 6 Сигнализация
+    area 7 Вывод под датчики на пол
+room CAB Кабинет
+    area 1 Розетки у кровати
+    area 2 Розетки за шкафами
+    area 3 Розетки под столом справа
+    area 4 Розетки под столом слева
+    area 5 Вывод аудио
+    area 6 Вывод под освешение комнаты
+    area 7 Вывод под освещение рабочей зоны
+    area 8 Выключатель света рабочей зоны
+    area 9 Сигнализация
+    area 10 Выключатель освещения
+    area 11 Розетки под подоконником
+room CLD Детская
+    area 1 Розетки рядом с окном
+    area 2 Выключатель подсветки рабочей зоны
+    area 3 Розетки под рабочим столом
+    area 4 Телевизор
+    area 5 Выключатель освещения
+    area 6 Вывод аудио
+    area 7 Вывод освещения
+    area 8 Вывод под датчики на пол
+    area 9 Бра слева от дивана
+    area 10 Бра справа от дивана
+    area 11 Выключатель бра дивана
+    area 12 Прикроватная бра
+    area 13 Выключатель прикроватной бра
+room LG2 Лоджия в детской
+    area 1 Блок вентиляции
+    area 2 Блок розеток 1
+    area 3 Выключатель зоны 1
+    area 4 Блок розеток 2
+    area 5 Выключатель зоны 2
+    area 6 Блок розеток 3
+    area 7 Выключатель зоны 3
+    area 9 Вывод под освещение зоны 1
+    area 10 Вывод под освещение зоны 2
+    area 11 Вывод под освещение зоны 3
+    area 12 Сигнализация окна 1
+    area 13 Сигнализация окна 2
+    area 14 Сигнализация окна 3
+    area 15 Вывод аудио 1
+    area 16 Вывод аудио 2
+    area 17 Вывод под датчики на пол
+room LND Лестничная площадка
+    area 1 Щиток
+    area 2 Звонок
+
+cable INTERNET       Сеть            CAT5        SRV-1 LND-1                            9m
+cable PHONE-FXO      Телефон         CAT3        SRV-1 LND-1                            9m
+cable ALARM-OUT      Сигнализация    CAT3        COR-8 LND-1                            7m
+cable CCTV-LND       Видео           VIDEO       SRV-1 LND-1                            9m
+cable TV-ANT-IN      Антенна         ANT         SRV-1 LND-1                            9m
+
+cable PWR-BDR        Розетки         3x1.5       SRV-2 BDR-1 BDR-2 BDR-4 CLK-1 BDR-8    17m
+cable NET-BDR        Сеть            CAT5        SRV-1 BDR-1                            8m
+cable PHONE-BDR      Телефон         CAT5        SRV-1 BDR-1                            8m
+cable BTN-BDR        Кнопки          CAT5        SRV-1 BDR-3 BDR-5 BDR-7 BDR-10 BDR-14  13m
+cable LIGHT-BDR      Освещение       3x1.5       SRV-2 BDR-6                            13m
+cable TV-NET-BDR     Сеть            CAT5        SRV-1 BDR-8                            3m
+cable TV-ANT-BDR     Антенна         ANT         SRV-1 BDR-8                            3m
+cable TV-SAT-BDR     Спутник         ANT         SRV-1 BDR-8                            3m
+cable AUDIO-BDR      Мультирум       VIDEO       SRV-1 BDR-9                            6m
+cable ALARM-BDR      Сигнализация    VIDEO       COR-8 BDR-11                           8m
+cable LIGHT-BDR-MIR  Освещение       3x1.5       SRV-2 BDR-12                           6m
+cable TV-SAT-IN      Спутник         ANT         SRV-1 BDR-13                           5m
+cable CCTV-BDR       Видео           VIDEO       SRV-1 BDR-13                           5m
+cable SCN-BDR-LEFT   Освещение       3x1.5       SRV-2 BDR-15                           7m
+cable SCN-BDR-RIGHT  Освещение       3x1.5       SRV-2 BDR-16                           7m
+
+cable LIGHT-CLK      Освещение       3x1.5       SRV-2 CLK-2                            3m
+                                                
+cable BTN-COR        Кнопки          CAT5        SRV-1 COR-1 COR-9 LND-2                11m
+cable PWR-COR        Розетки         3x1.5       SRV-2 COR-2 COR-3 COR-6                13m
+cable AUDIO-COR      Мультирум       VIDEO       SRV-1 COR-4                            4m
+cable LIGHT-ENTRY    Освещение       3x1.5       SRV-2 COR-5                            7m
+cable LIGHT-SPORT    Освещение       3x1.5       SRV-2 COR-7                            6m
+
+cable BTN-TLT        Кнопки          CAT3        SRV-1 TLT-1                            5m
+cable PWR-TLT        Розетки         3x1.5       SRV-2 TLT-2                            6m
+cable VENT-TLT       Вентилятор      3x1.5       SRV-2 TLT-3                            6m
+cable LIGHT-TLT-MIRR Освещение       3x1.5       SRV-2 TLT-4 TLT-7                      6m
+cable LIGHT-TLT      Освещение       3x1.5       SRV-2 TLT-5                            10m
+cable PHONE-TLT      Телефон         CAT5        SRV-1 TLT-6                            6m
+
+cable PWR-KTC        Розетки         3x1.5       SRV-2 KTC-1 KTC-3 KTC-6 KTC-7 KTC-8 KTC-9 KTC-12 LG1-1 KTC-18  19m
+cable PWR-WASH       Стиралка        3x1.5       SRV-2 KTC-2                            4m
+cable PWR-DISH       Посудомойка     3x1.5       SRV-2 KTC-5                            7m
+cable PWR-WARM-FLR   Сантехника-1    3x1.5       SRV-2 KTC-4                            6m
+cable PWR-VALVE-PWR  Сантехника-2    3x1.5       SRV-2 KTC-4                            6m
+cable PWR-VALVE-CTL  Сантехника-3    3x1.5       SRV-2 KTC-4                            6m
+cable LIGHT-KTCH     Освещение       3x1.5       SRV-2 KTC-10                           17m
+cable AUDIO-KTCH     Мультирум       VIDEO       SRV-1 KTC-11                           2m
+cable LIGHT-DINING   Освещение       3x1.5       SRV-2 KTC-13                           5m
+cable BTN-KTCH       Кнопки          CAT5        SRV-1 KTC-3 KTC-14 KTC-15 LG1-2        12m
+cable NET-KTCH       Сеть            CAT5        SRV-1 KTC-12                           8m
+cable PHONE-KTCH     Телефон         CAT5        SRV-1 KTC-12                           8m
+cable TV-NET-KTCH    Сеть            CAT5        SRV-1 KTC-8                            8m
+cable TV-ANT-KTCH    Антенна         ANT         SRV-1 KTC-8                            8m
+cable TV-SAT-KTCH    Спутник         ANT         SRV-1 KTC-8                            8m
+cable LIGHT-WORK-KTC Освещение       3x1.5       SRV-2 KTC-17                           6m
+cable GAS-CTL        Колонка         VIDEO       SRV-2 KTC-8                            8m
+
+cable UPS-LG1        Бесперебойник   3x1.5       SRV-2 LG1-1                            12m
+cable AUDIO-LG1      Мультирум       VIDEO       SRV-1 LG1-3                            8m
+cable LIGHT-LG1      Освещение       3x1.5       SRV-2 LG1-4                            10m
+cable LIGHT-WORK-LG1 Освещение       3x1.5       SRV-2 LG1-4                            9m
+cable VENT-LG1       Вентиляция      3x1.5       SRV-2 LG1-5                            8m
+cable ALARM-LG1      Сигнализация    VIDEO       COR-8 LG1-6                            9m
+cable NET-LG1        Сеть            CAT5        SRV-1 LG1-1                            12m
+cable PHONE-LG1      Телефон         CAT5        SRV-1 LG1-1                            12m
+
+cable PWR-CAB        Розетки         3x1.5       SRV-2 CAB-1 CAB-2 CAB-3 CAB-4 CAB-11   20m
+cable UPS-CAB        Бесперебойник   3x1.5       SRV-2 CAB-3                            11m
+cable AUDIO-CAB      Мультирум       VIDEO       SRV-1 CAB-5                            4m
+cable LIGHT-CAB      Освещение       3x1.5       SRV-2 CAB-6                            10m
+cable LIGHT-WORK-CAB Освещение       3x1.5       SRV-2 CAB-7 CAB-3                      9m
+cable BTN-CAB        Кнопки          CAT3        SRV-1 CAB-10 CAB-8                     11m
+cable NET-CAB-PRN    Сеть            CAT5        SRV-1 CAB-4                            10m
+cable NET-CAB-LEFT   Сеть            CAT5        SRV-1 CAB-4                            10m
+cable NET-CAB-RIGHT  Сеть            CAT5        SRV-1 CAB-3                            11m
+cable PHONE-CAB      Телефон         CAT5        SRV-1 CAB-3                            11m
+cable ALARM-CAB      Сигнализация    VIDEO       COR-8 CAB-9                            8m
+
+cable PWR-CLD        Розетки         3x1.5       SRV-2 CLD-1 CLD-3 CLD-4                21m
+cable UPS-CLD        Бесперебойник   3x1.5       SRV-2 CLD-3                            12m
+cable BTN-CLD        Кнопки          CAT5        SRV-1 CLD-2 CLD-5 LG2-3 LG2-5 LG2-7 CLD-13 CLD-11    24m
+cable TV-ANT-CLD     Антенна         ANT         SRV-1 CLD-4                            7m
+cable TV-SAT-CLD     Спутник         ANT         SRV-1 CLD-4                            7m
+cable TV-NET-CLD     Сеть            CAT5        SRV-1 CLD-4                            7m
+cable AUDIO-CLD      Мультирум       VIDEO       SRV-1 CLD-6                            5m
+cable LIGHT-CLD      Освещение       3x1.5       SRV-2 CLD-7                            21m
+cable LIGHT-WORK-CLD Освещение       3x1.5       SRV-2 CLD-7 CLD-3                      9m
+cable NET-CLD        Сеть            CAT5        SRV-1 CLD-3                            12m
+cable PHONE-CLD      Телефон         CAT5        SRV-1 CLD-3                            12m
+cable SCN-CHD-SOFA   Освещение       3x1.5       SRV-2 CLD-9 CLD-10                     15m
+cable SCN-CHD-BED    Освещение       3x1.5       SRV-2 CLD-12                           11m
+
+cable VENT-LG2       Вентиляция      3x1.5       SRV-2 LG2-1                            10m
+cable PWR-LG2        Розетки         3x1.5       SRV-2 LG2-2 LG2-4 LG2-6                30m
+cable LIGHT-LG2-1    Освещение       3x1.5       SRV-2 LG2-9                            10m
+cable LIGHT-LG2-2    Освещение       3x1.5       SRV-2 LG2-10                           10m
+cable LIGHT-LG2-3    Освещение       3x1.5       SRV-2 LG2-11                           9m
+cable ALARM-LG2-1    Сигнализация    VIDEO       COR-8 LG2-12                           7m
+cable ALARM-LG2-2    Сигнализация    VIDEO       COR-8 LG2-13                           8m
+cable ALARM-LG2-3    Сигнализация    VIDEO       COR-8 LG2-14                           8m
+cable AUDIO-LG2-1    Мультирум       VIDEO       SRV-1 LG2-15                           10m
+cable AUDIO-LG2-2    Мультирум       VIDEO       SRV-1 LG2-16                           9m
+cable CCTV-LG2       Видео           VIDEO       SRV-1 LG2-14                           9m
+
+cable MICROLAN-COR   Датчики         CAT3        SRV-1 COR-10                           4m
+cable MICROLAN-KTC   Датчики         CAT3        SRV-1 KTC-16                           5m
+cable MICROLAN-LG1   Датчики         CAT3        SRV-1 LG1-7 LG1-5                      15m
+cable MICROLAN-CLD   Датчики         CAT3        SRV-1 CLD-8                            7m
+cable MICROLAN-LG2   Датчики         CAT3        SRV-1 LG2-17 LG2-1                     15m
