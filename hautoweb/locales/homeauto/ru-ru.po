@@ -10,12 +10,27 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Log out"
+msgid "Admin"
+msgstr "Админ"
+
+msgid "Demo"
+msgstr "Демо"
+
+msgid "Demo scenarios"
+msgstr "Демонстрационные сценарии"
+
+msgid "Logout"
 msgstr "Выход"
 
-msgid "mainpage///Main"
-msgstr "Главная"
+msgid "Overview"
+msgstr "Обзор"
 
+#~ msgid "mainpage///Main"
+#~ msgstr "Главная"
+#~ msgid "Debug services"
+#~ msgstr "Отладочные сервисы"
+#~ msgid "Log out"
+#~ msgstr "Выход"
 #~ msgid "Test 2"
 #~ msgstr "Тест 2"
 

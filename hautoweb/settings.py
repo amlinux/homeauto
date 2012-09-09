@@ -38,6 +38,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'hautoweb.urls'
@@ -55,10 +56,13 @@ DATABASES = {
 
 INSTALLED_APPS = (
     "hautoweb.portal",
+    "hautoweb.hwdebug",
     "hautoweb.mlansetup",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.auth",
+    "django.contrib.messages",
+    "django.contrib.admin",
     "staticfiles",
 )
 
@@ -66,6 +70,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "staticfiles.context_processors.static_url",
     "django.contrib.auth.context_processors.auth",
     "hautoweb.portal.context_processors.menu",
+    "django.contrib.messages.context_processors.messages",
 )
 
 STATICFILES_DIRS = [
