@@ -241,6 +241,7 @@ class Dispatcher(object):
         self.hosts = []
         self.queue = queue or FIFORequestQueue()
         self.sent_request = None
+        self.subscribers = []
 
     def add_host(self, host):
         "Add a host to the dispatcher. Host is a Host instance"
@@ -351,6 +352,27 @@ class Dispatcher(object):
                 # deliver data into the loop
                 if data is not None and channel.has_receiver():
                     channel.send(data)
+        # Notify all subscribers about new event
+        self.process_event({
+            "type": "recv",
+            "data": data
+        })
+
+    def subscribe(self, conditions, handler):
+        self.subscribers.append({
+            "conditions": conditions,
+            "handler": handler
+        })
+
+    def process_event(self, event):
+        for sub in self.subscribers:
+            match = True
+            for key, val in sub["conditions"].items():
+                if event.get("key") != val:
+                    match = False
+                    break
+            if match:
+                sub["handler"](event)
 
 class HostVersionRequest(Request):
     "Request to check host availability"

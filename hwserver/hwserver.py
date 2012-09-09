@@ -13,6 +13,7 @@ import logging
 from config import *
 from hwapi import HardwareAPIServer
 from concurrence.http import WSGIServer
+from homelogic import HomeLogic
 
 def setupLogging():
     log = logging.getLogger("")
@@ -104,6 +105,7 @@ def main():
         #Tasklet.new(a)()
         #Tasklet.new(b)()
 
+        logic = HomeLogic(dispatcher)
         hwapi = HardwareAPIServer(dispatcher)
         server = WSGIServer(hwapi)
         server.serve((
