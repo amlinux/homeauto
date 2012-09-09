@@ -4,8 +4,6 @@ from hautoweb.settings import LANGUAGE_CODE, path
 
 re_remove_domain = re.compile(r'^.{,20}///')
 
-print path
-print LANGUAGE_CODE
 if LANGUAGE_CODE == "en-us":
     trans = gettext.NullTranslations()
 else:
