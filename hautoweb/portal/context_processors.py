@@ -1,4 +1,5 @@
 from django.utils.functional import SimpleLazyObject
+from l10n import _
 
 class SimpleLazyList(SimpleLazyObject):
     def __len__(self):
@@ -11,15 +12,19 @@ class SimpleLazyList(SimpleLazyObject):
 
 def menu(request):
     def topmenu():
-        print "called topmenu"
         return [
             {
                 "href": "/",
-                "title": "Test",
+                "title": _("mainpage///Main"),
+            },
+            {
+                "href": "/homeauto/logout/",
+                "title": _("Log out")
             }
         ]
-
-    return {
-        "topmenu": SimpleLazyList(topmenu)
-    }
-
+    if request.user.is_authenticated():
+        return {
+            "topmenu": SimpleLazyList(topmenu)
+        }
+    else:
+        return {}

@@ -1,0 +1,21 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Alexander Lourier <aml@rulezz.ru>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Log out"
+msgstr "Выход"
+
+msgid "mainpage///Main"
+msgstr "Главная"
+
+#~ msgid "Test 2"
+#~ msgstr "Тест 2"
+

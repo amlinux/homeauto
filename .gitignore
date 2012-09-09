@@ -33,3 +33,6 @@ funclist
 
 *.swp
 *.db
+*.mo
+gettext-*.js
+*.pot
