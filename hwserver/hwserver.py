@@ -27,11 +27,11 @@ def main():
         setupLogging()
 
         dispatcher = HomeAutoDispatcher()
-#        Tasklet.new(dispatcher.loop)()
-#        dispatcher.open_ports(
-#            conf("hardware", "port1", "/dev/ttyS0"),
-#            conf("hardware", "port2", "/dev/ttyS1")
-#        )
+        Tasklet.new(dispatcher.loop)()
+        dispatcher.open_ports(
+            conf("hardware", "port1", "/dev/ttyS0"),
+            conf("hardware", "port2", "/dev/ttyS1")
+        )
 
 #        try:
 #            print "ReadROM: %s" % dispatcher.request(MicroLANReadROM(0))
@@ -102,8 +102,8 @@ def main():
                     dispatcher.relay_clear_all()
                     Tasklet.sleep(0.3)
 
-        #Tasklet.new(a)()
-        #Tasklet.new(b)()
+        Tasklet.new(a)()
+        Tasklet.new(b)()
 
         logic = HomeLogic(dispatcher)
         hwapi = HardwareAPIServer(dispatcher)
