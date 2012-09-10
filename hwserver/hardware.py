@@ -340,7 +340,7 @@ class Dispatcher(object):
             request, channel = self.sent_request
             try:
                 # Calling validator
-                data = request.valid_response(data)
+                validateResult = request.valid_response(data)
             except CommunicationError as e:
                 # Validator raised exception
                 if channel.has_receiver():
@@ -350,8 +350,8 @@ class Dispatcher(object):
             else:
                 # If we received valid request and dispatcher loop is still waiting
                 # deliver data into the loop
-                if data is not None and channel.has_receiver():
-                    channel.send(data)
+                if validateResult is not None and channel.has_receiver():
+                    channel.send(validateResult)
         # Notify all subscribers about new event
         self.process_event({
             "type": "recv",
