@@ -165,7 +165,7 @@ void buttons_isr()
             unsigned char newState = ((*port & mask) == 0) ? 128 : 0;
             unsigned char *state = btnState + c;
             if ((*state & 128) != newState) {
-                if ((++*state) & 16 != 0) {
+                if (((++*state) & 4) != 0) {
                     // New steady state
                     *state = newState;
                     // Report new state to the host
