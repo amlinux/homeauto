@@ -1,6 +1,7 @@
 from concurrence import Tasklet, Channel, TimeoutError
 from concurrence.extra import Lock
 from serial import SerialStream
+import logging
 
 def crc(crc, data):
     "Accepts previous CRC byte and data byte. Returns new CRC"
@@ -72,28 +73,31 @@ class Host(object):
         "Infinitely read serial input and parse packets"
         with self.stream.get_reader() as reader:
             while True:
-                # waiting for preamble
-                while True:
-                    data = ord(reader.read_bytes(1))
-                    if data == 0x5a:
-                        break
-                # reading packet length
-                _crc = 0
-                pktlen = ord(reader.read_bytes(1))
-                _crc = crc(_crc, pktlen)
-                # reading packet data
-                if pktlen > 0:
-                    data = []
-                    for d in reader.read_bytes(pktlen):
-                        d = ord(d)
-                        data.append(d)
-                        _crc = crc(_crc, d)
-                    # reading CRC
-                    _crc = crc(_crc, ord(reader.read_bytes(1)))
-                    # checking CRC
-                    if _crc == 0:
-                        print "Packet received successfully: %s" % (", ".join(["0x%02x" % d for d in data]))
-                        self.dispatcher.receive(data)
+                try:
+                    # waiting for preamble
+                    while True:
+                        data = ord(reader.read_bytes(1))
+                        if data == 0x5a:
+                            break
+                    # reading packet length
+                    _crc = 0
+                    pktlen = ord(reader.read_bytes(1))
+                    _crc = crc(_crc, pktlen)
+                    # reading packet data
+                    if pktlen > 0:
+                        data = []
+                        for d in reader.read_bytes(pktlen):
+                            d = ord(d)
+                            data.append(d)
+                            _crc = crc(_crc, d)
+                        # reading CRC
+                        _crc = crc(_crc, ord(reader.read_bytes(1)))
+                        # checking CRC
+                        if _crc == 0:
+                            print "Packet received successfully: %s" % (", ".join(["0x%02x" % d for d in data]))
+                            self.dispatcher.receive(data)
+                except Exception as e:
+                    logging.exception(e)
 
     def version(self):
         "Check host version (None if not available)"
@@ -276,48 +280,51 @@ class Dispatcher(object):
             task()
         try:
             while True:
-                # Fetch and send requests infinitely
-                request = self.queue.retrieve()
-                # Make routing decision
-                host = self.route(request)
-                if host is None:
-                    # No route to send this packet
-                    request.deliver_exception(DestinationUnreachable)
-                else:
-                    # Creating "callback" channel
-                    channel = Channel()
-                    self.sent_request = (request, channel)
-                    try:
-                        # Sending request
-                        request.send(host)
+                try:
+                    # Fetch and send requests infinitely
+                    request = self.queue.retrieve()
+                    # Make routing decision
+                    host = self.route(request)
+                    if host is None:
+                        # No route to send this packet
+                        request.deliver_exception(DestinationUnreachable)
+                    else:
+                        # Creating "callback" channel
+                        channel = Channel()
+                        self.sent_request = (request, channel)
                         try:
-                            # Waiting for response
-                            response = channel.receive(2)
-                        except TimeoutError:
-                            request.deliver_onetime_exception(TimeoutError)
-                            if request.any_waiters():
-                                request.failures += 1
-                                self.queue.add(request)
-                        except DeviceUnreachable as e:
-                            if e.reason == 2:
-                                # reason=2 means we received unexpected packet from another host
-                                # occasionally. In this case even onetime requests are performed again
-                                self.queue.add(request)
-                            else:
-                                request.failures += 1
-                                args = e.args
-                                request.deliver_onetime_exception(e.__class__, *args)
+                            # Sending request
+                            request.send(host)
+                            try:
+                                # Waiting for response
+                                response = channel.receive(2)
+                            except TimeoutError:
+                                request.deliver_onetime_exception(TimeoutError)
                                 if request.any_waiters():
+                                    request.failures += 1
                                     self.queue.add(request)
-                        except CommunicationError as e:
-                            # Dispatcher loop received unexpected exception"
-                            args = e.args
-                            request.deliver_exception(e.__class__, *args)
-                        else:
-                            # Dispatcher loop received valid response. Delivering it to all waiters
-                            request.deliver_response(response)
-                    finally:
-                        self.sent_request = False
+                            except DeviceUnreachable as e:
+                                if e.reason == 2:
+                                    # reason=2 means we received unexpected packet from another host
+                                    # occasionally. In this case even onetime requests are performed again
+                                    self.queue.add(request)
+                                else:
+                                    request.failures += 1
+                                    args = e.args
+                                    request.deliver_onetime_exception(e.__class__, *args)
+                                    if request.any_waiters():
+                                        self.queue.add(request)
+                            except CommunicationError as e:
+                                # Dispatcher loop received unexpected exception"
+                                args = e.args
+                                request.deliver_exception(e.__class__, *args)
+                            else:
+                                # Dispatcher loop received valid response. Delivering it to all waiters
+                                request.deliver_response(response)
+                        finally:
+                            self.sent_request = False
+                except Exception as e:
+                    logging.exception(e)
         finally:
             for task in host_tasks:
                 task.kill()
