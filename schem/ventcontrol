@@ -1,0 +1,3 @@
+elements-dir ../../packages
+schematics ventcontrol.sch ventpower.sch
+output-name ventcontrol
