@@ -102,8 +102,8 @@ def main():
                     dispatcher.relay_clear_all()
                     Tasklet.sleep(0.3)
 
-        Tasklet.new(a)()
-        Tasklet.new(b)()
+        #Tasklet.new(a)()
+        #Tasklet.new(b)()
 
         logic = HomeLogic(dispatcher)
         hwapi = HardwareAPIServer(dispatcher)
