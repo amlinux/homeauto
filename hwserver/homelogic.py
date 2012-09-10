@@ -26,15 +26,14 @@ class HomeLogic(object):
             if btnCmd == 0:
                 btn = data.pop(0)
                 print "Released button %d" % btn
-                if not self.btnLongPress.get(btn):
-                    relay = btn + 1
-                    newState = not self.relayState.get(relay)
-                    self.relayState[relay] = newState
-                    self.dispatcher.relay_set(relay, newState)
             elif btnCmd == 1:
                 btn = data.pop(0)
                 print "Pressed button %d" % btn
                 self.btnLongPress[btn] = False
+                relay = btn + 1
+                newState = not self.relayState.get(relay)
+                self.relayState[relay] = newState
+                self.dispatcher.relay_set(relay, newState)
             elif btnCmd == 2:
                 btn = data.pop(0)
                 duration = data.pop(0)
@@ -43,7 +42,7 @@ class HomeLogic(object):
                     self.btnLongPress[btn] = True
                     anyOn = False
                     for relay in xrange(1, 31):
-                        if self.relayState.get(relay):
+                        if relay != btn + 1 and self.relayState.get(relay):
                             anyOn = True
                             break
                     newState = not anyOn
