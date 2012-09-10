@@ -10,7 +10,8 @@ urlpatterns = patterns('',
     (r'^homeauto/', include('hautoweb.portal.urls')),
 #    (r'^$', 'hautoweb.mlansetup.views.index'),
     (r'^admin/', include(admin.site.urls)),
-    (r'^media(?P<path>/.*)$', 'django.views.static.serve', {'document_root': admin.__path__[0] + "/media/"})
+    (r'^media(?P<path>/.*)$', 'django.views.static.serve', {'document_root': admin.__path__[0] + "/media/"}),
+    (r'^hwdebug/', include('hautoweb.hwdebug.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns
