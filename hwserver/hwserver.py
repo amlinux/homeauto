@@ -11,7 +11,7 @@ from concurrence import dispatch, Tasklet
 from homehardware import HomeAutoDispatcher, MicroLANReadROM, HardwareError, MicroLANError, MicroLANListAll, MicroLANConvertTemperature, MicroLANReadTemperature
 import logging
 from config import *
-from hwapi import HardwareAPIServer
+from hwapi import HomeLogicAPIServer
 from concurrence.http import WSGIServer
 from homelogic import HomeLogic
 
@@ -106,13 +106,12 @@ def main():
         #Tasklet.new(b)()
 
         logic = HomeLogic(dispatcher)
-        hwapi = HardwareAPIServer(dispatcher)
+        hwapi = HomeLogicAPIServer(dispatcher, logic)
         server = WSGIServer(hwapi)
-        server.serve((
-            conf('hwserver', 'addr', '127.0.0.1'),
-            confInt('hwserver', 'port', 8081)
-        ))
-
+        addr = conf('hwserver', 'addr', '127.0.0.1')
+        port = confInt('hwserver', 'port', 8081)
+        server.serve((addr, port))
+        logging.getLogger("hwserver").info("Serving API at %s:%s", addr, port)
         while True:
             Tasklet.sleep(100)
 

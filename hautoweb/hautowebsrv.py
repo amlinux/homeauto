@@ -31,10 +31,10 @@ def main():
     try:
         setupLogging()
         server = WSGIServer(app_wrapper)
-        server.serve((
-            conf('web', 'addr', '127.0.0.1'),
-            confInt('web', 'port', 8080)
-        ))
+        addr = conf('web', 'addr', '127.0.0.1')
+        port = confInt('web', 'port', 8080)
+        server.serve((addr, port))
+        logging.getLogger("hautowebsrv").info("Serving HTTP at %s:%s", addr, port)
         while True:
             Tasklet.sleep(1)
     except Exception as e:
