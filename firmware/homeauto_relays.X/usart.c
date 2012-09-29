@@ -12,6 +12,9 @@
  * CRC
  */
 
+// Timeout in seconds before resetting baudrate */
+#define USART_TIMEOUT 10
+
 // must be power of 2
 #define BUFSIZE 64
 
@@ -50,6 +53,10 @@ unsigned char usart_read_overflow_errors = 0;
 unsigned char usart_write_overflow_errors = 0;
 unsigned char usart_calibration_errors = 0;
 
+/* Packet receive timeout */
+unsigned char usart_timeout = 0;
+unsigned char calibrated;
+
 void usart_init()
 {
     ANSELC &= ~0xc0;
@@ -61,6 +68,7 @@ void usart_init()
     SPBRGL = 207;
     RCIE = 1;
     PEIE = 1;
+    calibrated = 0;
 }
 
 void usart_rbuf_store(unsigned char data)
@@ -143,6 +151,7 @@ void usart_recv()
                 // will be triggered
                 usart_rbuf_wbegin = usart_rbuf_wptr;
                 usart_rcv_state = 0;
+                usart_timeout = 0;
             } else {
                 // CRC error
                 calc_crc_errors++;
@@ -179,12 +188,14 @@ void usart_check()
                 T0IF = 0;
                 watchdog = 0;
                 error = 0;
+                calibrated = 1;
                 while (ABDEN) {
                     if (T0IF) {
                         usart_calibration_errors++;
                         SPBRGH = 0;
                         SPBRGL = 207;
                         error = 1;
+                        calibrated = 0;
                         break;
                     }
                 }
@@ -296,4 +307,17 @@ unsigned char usart_send_empty()
         return 1;
     else
         return 0;
+}
+
+void usart_1sec_timer()
+{
+    if (++usart_timeout == USART_TIMEOUT) {
+        SPBRGH = 0;
+        SPBRGL = 207;
+        calibrated = 0;
+        usart_timeout = 0;
+    }
+    /* Every second "I'm not calibrated" error is sent */
+    if (calibrated == 0)
+        usart_pkt_send('R', 1);
 }

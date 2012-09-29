@@ -31,8 +31,6 @@ class HomeAutoDispatcher(Dispatcher):
         else:
             self.maincontrol = host1
             self.relayscontrol = host2
-        print "Maincontrol calibration: %s" % self.maincontrol.calibrate_baudrate()
-        print "Relayscontrol calibration: %s" % self.relayscontrol.calibrate_baudrate()
 
     def route(self, request):
         hint = getattr(request, "routeHint", None)

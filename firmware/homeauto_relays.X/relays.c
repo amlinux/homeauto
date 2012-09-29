@@ -93,6 +93,23 @@ void interrupt isr()
     while (RCIF) {
         usart_recv();
     }
+    if (TMR1IF) {
+        // Usually this event happens 128 times per second
+        // (perios is about 7.8ms)
+        TMR1IF = 0;
+        unsigned char ticks = TMR1H;
+        TMR1H = 0xff;
+        if (ticks < 0xff)
+            ticks++;
+        // If some of ticks were missed, they are
+        // counted in ticks variable
+        static unsigned char timeout_1sec = 0;
+        timeout_1sec += ticks;
+        if (timeout_1sec >= 128) {
+            timeout_1sec -= 128;
+            usart_1sec_timer();
+        }
+    }
 }
 
 /*
@@ -148,12 +165,22 @@ void ports_init()
     LATE = 0;
 }
 
+void timer_init()
+{
+    /* LFINTOSC (32768 Hz) divided by 1:1 */
+    T1CON = 0xc7;
+    T1GCON = 0;
+    TMR1IE = 1;
+    PEIE = 1;
+}
+
 void main()
 {
     di();
     OSCCON = 0x78;
     ports_init();
     usart_init();
+    timer_init();
     ei();
     usart_pkt_send('R', 1);
     while (1) {

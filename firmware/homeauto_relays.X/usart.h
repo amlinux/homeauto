@@ -27,4 +27,7 @@ void usart_pkt_put(unsigned char data);
 /* Check whether output queue is empty */
 unsigned char usart_send_empty();
 
+/* Call 1 time per second to make timeouts work */
+void usart_1sec_timer();
+
 #endif

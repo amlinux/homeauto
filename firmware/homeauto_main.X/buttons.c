@@ -159,6 +159,12 @@ void buttons_isr()
             ticks++;
         // If some of ticks were missed, they are
         // counted in ticks variable
+        static unsigned char timeout_1sec = 0;
+        timeout_1sec += ticks;
+        if (timeout_1sec >= 128) {
+            timeout_1sec -= 128;
+            usart_1sec_timer();
+        }
         for (char c = 0; c < BUTTONS; c++) {
             char_ptr port = btnPort[c];
             unsigned char mask = btnMask[c];

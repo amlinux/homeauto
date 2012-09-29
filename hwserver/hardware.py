@@ -45,6 +45,7 @@ class Host(object):
         self.dispatcher = dispatcher
         self.stream = SerialStream(devname)
         self._next_pkt_id = 0
+        self._in_calibrate = False
 
     def send_raw(self, buf):
         "Send raw data without any checksuming and headers"
@@ -95,6 +96,10 @@ class Host(object):
                         # checking CRC
                         if _crc == 0:
                             print "Packet received successfully: %s" % (", ".join(["0x%02x" % d for d in data]))
+                            if len(data) == 1 and data[0] == ord('R'):
+                                if not self._in_calibrate:
+                                    self._in_calibrate = True
+                                    Tasklet.net(self.auto_calibrate_baudrate)()
                             self.dispatcher.receive(data)
                 except Exception as e:
                     logging.exception(e)
@@ -114,6 +119,15 @@ class Host(object):
             return self.dispatcher.request(req, timeout=3)
         except TimeoutError:
             raise BaudRateCalibrationError()
+
+    def auto_calibrate_baudrate(self):
+        try:
+            try:
+                print "Calibrated baudrate: %s" % self.calibrate_baudrate()
+            except Exception as e:
+                print "Baudrate calibration failed: %s" % e
+        finally:
+            self._in_calibrate = False
 
     def next_pkt_id(self):
         self._next_pkt_id = (self._next_pkt_id + 1) % 256
