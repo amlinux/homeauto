@@ -1,6 +1,8 @@
 import re
 import json as json_module
 import cgi
+from concurrence import Channel, TimeoutError
+from hardware import EventReceiver
 
 class BadRequestError(Exception):
     def __init__(self, msg):
@@ -10,11 +12,13 @@ class HomeLogicAPIServer(object):
     def __init__(self, dispatcher, logic):
         self.dispatcher = dispatcher
         self.logic = logic
+        self.monitor_waiters = []
         self.routes = [
             (re.compile('/$'), self.index),
             (re.compile('/relay/(on|off)/(\d+)$'), self.relay_onoff),
             (re.compile('/monitor$'), self.monitor),
         ]
+        self.dispatcher.subscribe({}, EventReceiver(self))
 
     def __call__(self, environ, start_response):
         try:
@@ -83,14 +87,43 @@ class HomeLogicAPIServer(object):
         else:
             return unicode(val[0], "utf-8")
 
-    def monitor(self, environ, start_response):
-        response = {}
+    def monitor_state(self):
+        state = {}
         for relay in xrange(1, 31):
             actualState = 1 if self.logic.relayState.get(relay) else 0
-            response["relay%d" % relay] = actualState
+            state["relay%d" % relay] = actualState
+        return state
+
+    def monitor(self, environ, start_response):
+        state = self.monitor_state()
+        mismatch = False
+        for relay in xrange(1, 31):
+            actualState = state["relay%d" % relay]
             recvState = self.param(environ, "relay%d" % relay)
             try:
                 recvState = int(recvState)
             except Exception:
                 recvState = None
-        return self.json(start_response, response)
+            if recvState != actualState:
+                mismatch = True
+        # If any API parameter mismatches actual value
+        # Send all actual data immediately. Otherwise lock
+        # request in timeout.
+        if not mismatch:
+            ch = Channel()
+            self.monitor_waiters.append(ch)
+            try:
+                state = self.json(start_response, ch.receive(10))
+            except TimeoutError:
+                pass
+        return self.json(start_response, state)
+
+    def event_relay(self, event):
+        waiters = self.monitor_waiters
+        self.monitor_waiters = []
+        state = self.monitor_state()
+        for ch in waiters:
+            try:
+                ch.send(state, 3)
+            except TimeoutError:
+                pass

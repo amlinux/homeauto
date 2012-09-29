@@ -1,33 +1,36 @@
-class EventReceiver(object):
-    def __init__(self, logic):
-        self.logic = logic
-
-    def __call__(self, event):
-        method_name = "event_%s" % event["type"]
-        method = getattr(self.logic, method_name, None)
-        if method:
-            method(event)
+from hardware import EventReceiver
 
 class HomeLogic(object):
     def __init__(self, dispatcher):
         self.dispatcher = dispatcher
-        self.logic = EventReceiver(self)
         self.relayState = {}
         self.btnLongPress = {}
         self.relay_clear_all()
-        self.dispatcher.subscribe({}, self.logic)
+        self.dispatcher.subscribe({}, EventReceiver(self))
 
     def relay_set(self, relay, state):
-        self.relayState[relay] = state
-        self.dispatcher.relay_set(relay, state)
+        if self.relayState[relay] != state:
+            self.relayState[relay] = state
+            self.dispatcher.relay_set(relay, state)
+            self.dispatcher.send_event({
+                "type": "relay"
+            })
 
     def relay_set_all(self, value=True):
+        changed = False
         for relay in xrange(1, 31):
-            self.relayState[relay] = value
+            if self.relayState[relay] != value:
+                changed = True
+                self.relayState[relay] = value
+        if not changed:
+            return
         if value:
             self.dispatcher.relay_set_all()
         else:
             self.dispatcher.relay_clear_all()
+        self.dispatcher.send_event({
+            "type": "relay"
+        })
 
     def relay_clear_all(self):
         self.relay_set_all(False)

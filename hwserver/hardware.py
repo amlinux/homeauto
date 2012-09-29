@@ -360,7 +360,7 @@ class Dispatcher(object):
                 if validateResult is not None and channel.has_receiver():
                     channel.send(validateResult)
         # Notify all subscribers about new event
-        self.process_event({
+        self.send_event({
             "type": "recv",
             "data": data
         })
@@ -371,7 +371,7 @@ class Dispatcher(object):
             "handler": handler
         })
 
-    def process_event(self, event):
+    def send_event(self, event):
         for sub in self.subscribers:
             match = True
             for key, val in sub["conditions"].items():
@@ -407,3 +407,14 @@ class BaudRateCalibrationRequest(Request):
         host.flush()
         Tasklet.sleep(0.005)
         host.send_raw([0x55])
+
+class EventReceiver(object):
+    def __init__(self, recipient):
+        self.recipient = recipient
+
+    def __call__(self, event):
+        method_name = "event_%s" % event["type"]
+        method = getattr(self.recipient, method_name, None)
+        if method:
+            method(event)
+
