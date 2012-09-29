@@ -53,7 +53,7 @@ class HomeLogicAPIServer(object):
         num = int(num)
         if num < 1 or num > 30:
             raise BadRequestError("Relay number must be in range 1-30")
-        self.dispatcher.relay_set(num, True if cmd == "on" else False)
+        self.logic.relay_set(num, True if cmd == "on" else False)
         return self.json(start_response, {"relay": num, "state": cmd})
 
     def load_params(self, environ):

@@ -14,8 +14,23 @@ class HomeLogic(object):
         self.logic = EventReceiver(self)
         self.relayState = {}
         self.btnLongPress = {}
-        self.dispatcher.relay_clear_all()
+        self.relay_clear_all()
         self.dispatcher.subscribe({}, self.logic)
+
+    def relay_set(self, relay, state):
+        self.relayState[relay] = state
+        self.dispatcher.relay_set(relay, state)
+
+    def relay_set_all(self, value=True):
+        for relay in xrange(1, 31):
+            self.relayState[relay] = value
+        if value:
+            self.dispatcher.relay_set_all()
+        else:
+            self.dispatcher.relay_clear_all()
+
+    def relay_clear_all(self):
+        self.relay_set_all(False)
 
     def event_recv(self, event):
         print event
@@ -32,8 +47,7 @@ class HomeLogic(object):
                 self.btnLongPress[btn] = False
                 relay = btn + 1
                 newState = not self.relayState.get(relay)
-                self.relayState[relay] = newState
-                self.dispatcher.relay_set(relay, newState)
+                self.relay_set(relay, newState)
             elif btnCmd == 2:
                 btn = data.pop(0)
                 duration = data.pop(0)
@@ -45,13 +59,7 @@ class HomeLogic(object):
                         if relay != btn + 1 and self.relayState.get(relay):
                             anyOn = True
                             break
-                    newState = not anyOn
-                    for relay in xrange(1, 31):
-                        self.relayState[relay] = newState
-                    if newState:
-                        self.dispatcher.relay_set_all()
-                    else:
-                        self.dispatcher.relay_clear_all()
+                    self.relay_set_all(not anyOn)
             else:
                 print "Unknown button event: %s %s" % (btnCmd, data)
 
