@@ -90,7 +90,7 @@ void main()
     usart_init();
     buttons_init();
     ei();
-    usart_pkt_send('R', 1);
+    usart_pkt_send('I', 1);
     while (1) {
         usart_check();
         if (microlan_task != 0) {

@@ -103,12 +103,7 @@ void interrupt isr()
             ticks++;
         // If some of ticks were missed, they are
         // counted in ticks variable
-        static unsigned char timeout_1sec = 0;
-        timeout_1sec += ticks;
-        if (timeout_1sec >= 128) {
-            timeout_1sec -= 128;
-            usart_1sec_timer();
-        }
+        usart_128_timer(ticks);
     }
 }
 
@@ -182,7 +177,7 @@ void main()
     usart_init();
     timer_init();
     ei();
-    usart_pkt_send('R', 1);
+    usart_pkt_send('I', 1);
     while (1) {
         usart_check();
     }

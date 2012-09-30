@@ -12,8 +12,11 @@
  * CRC
  */
 
-// Timeout in seconds before resetting baudrate */
+// Timeout in seconds before resetting baudrate
 #define USART_TIMEOUT 10
+
+// Timeout in 1/128 seconds to receive a packet
+#define USART_PACKET_TIMEOUT 128
 
 // must be power of 2
 #define BUFSIZE 64
@@ -30,6 +33,7 @@ unsigned char usart_rbuf_rptr = 0;
 unsigned char usart_rcv_state = 0;
 unsigned char usart_rcv_len;
 unsigned char usart_rcv_crc;
+unsigned char usart_rcv_timeout = 0;
 
 /* Send buffer */
 unsigned char usart_wbuf[BUFSIZE];
@@ -52,10 +56,10 @@ unsigned char calc_crc_errors = 0;
 unsigned char usart_read_overflow_errors = 0;
 unsigned char usart_write_overflow_errors = 0;
 unsigned char usart_calibration_errors = 0;
+unsigned char usart_timeout_errors = 0;
 
 /* Packet receive timeout */
 unsigned char usart_timeout = 0;
-unsigned char calibrated;
 
 void usart_init()
 {
@@ -68,7 +72,6 @@ void usart_init()
     SPBRGL = 207;
     RCIE = 1;
     PEIE = 1;
-    calibrated = 0;
 }
 
 void usart_rbuf_store(unsigned char data)
@@ -150,23 +153,22 @@ void usart_recv()
                 // on the next usart_check() call callback
                 // will be triggered
                 usart_rbuf_wbegin = usart_rbuf_wptr;
-                usart_rcv_state = 0;
-                usart_timeout = 0;
             } else {
                 // CRC error
                 calc_crc_errors++;
                 usart_rbuf_wptr = usart_rbuf_wbegin;
-                usart_rcv_state = 0;
             }
+            usart_rcv_state = 0;
             break;
         default:
             usart_internal_errors++;
     }
+    usart_rcv_timeout = (usart_rcv_state == 0) ? 0 : 5;
 }
 
 void usart_check()
 {
-    unsigned char watchdog, error;
+    unsigned char error;
     usart_check_errors();
     // check for unclaimed received packets
     if (usart_rbuf_rptr != usart_rbuf_wbegin) {
@@ -186,16 +188,13 @@ void usart_check()
                 OPTION_REG = (OPTION_REG & 0xc0) | 0x07;
                 TMR0 = 0;
                 T0IF = 0;
-                watchdog = 0;
                 error = 0;
-                calibrated = 1;
                 while (ABDEN) {
                     if (T0IF) {
                         usart_calibration_errors++;
                         SPBRGH = 0;
                         SPBRGL = 207;
                         error = 1;
-                        calibrated = 0;
                         break;
                     }
                 }
@@ -209,7 +208,7 @@ void usart_check()
                 ei();
                 break;
             case 0xf1:
-                usart_pkt_send(0xf1, 10);
+                usart_pkt_send(0xf1, 11);
                 usart_pkt_put(usart_framing_errors);
                 usart_pkt_put(usart_overrun_errors);
                 usart_pkt_put(usart_rbuf_overflow_errors);
@@ -219,6 +218,10 @@ void usart_check()
                 usart_pkt_put(usart_read_overflow_errors);
                 usart_pkt_put(usart_write_overflow_errors);
                 usart_pkt_put(usart_calibration_errors);
+                usart_pkt_put(usart_timeout_errors);
+                break;
+            case 0xf2:
+                usart_timeout = 0;
                 break;
             default:
                 usart_pkt_received(cmd, len);
@@ -309,15 +312,27 @@ unsigned char usart_send_empty()
         return 0;
 }
 
-void usart_1sec_timer()
+void usart_128_timer(unsigned char ticks)
 {
+    if (usart_rcv_timeout != 0) {
+        if (usart_rcv_timeout > ticks)
+            usart_rcv_timeout -= ticks;
+        else {
+            // Packet timed out
+            usart_rcv_timeout = 0;
+            usart_rcv_state = 0;
+            usart_timeout_errors++;
+        }
+    }
+    static unsigned char timeout_1sec = 0;
+    timeout_1sec += ticks;
+    if (timeout_1sec < 128)
+        return;
+    timeout_1sec -= 128;
     if (++usart_timeout == USART_TIMEOUT) {
         SPBRGH = 0;
         SPBRGL = 207;
-        calibrated = 0;
         usart_timeout = 0;
+        usart_pkt_send(0xf2, 1);
     }
-    /* Every second "I'm not calibrated" error is sent */
-    if (calibrated == 0)
-        usart_pkt_send('R', 1);
 }
