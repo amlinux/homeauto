@@ -47,20 +47,21 @@ class Application(hwgui.Application):
                 return
             val = 0 if val else 1
             print "Switching relay %d to state %d" % (btn, val)
-            hwclient.relay_set(btn, val)
+            hwserver.hwclient.relay_set(btn, val)
         return handler
 
 def fakeMonitor(state):
     import random
     for i in xrange(1, 31):
         state["relay%d" % i] = random.randrange(0, 2)
+    return state
 
 def monitorHw(app):
     state = {}
     while True:
         try:
-            #hwclient.monitor(state)
-            fakeMonitor(state)
+            state = hwserver.hwclient.monitor(state)
+            #state = fakeMonitor(state)
             for i in xrange(1, 31):
                 val = state["relay%d" % i]
                 if val:
