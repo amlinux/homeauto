@@ -2,12 +2,39 @@ import re
 import json as json_module
 import cgi
 import logging
-from concurrence import Channel, TimeoutError
+from concurrence import Channel, TimeoutError, Tasklet
 from hardware import EventReceiver
 
 class BadRequestError(Exception):
     def __init__(self, msg):
         self.msg = msg
+
+class MlanSearch(object):
+    def __init__(self):
+        self.tasklet = None
+
+    def search(self, line):
+        if self.tasklet is None:
+            self.reqchannel = Channel()
+            self.queued = {}
+            self.tasklet = Tasklet(self._checker)
+            self.tasklet()
+        ch = Channel()
+        if line in self.queued:
+            self.queued[line].append(ch)
+        else:
+            self.queued[line] = [ch]
+            self.reqchannel.send(line)
+        return ch.recv()
+
+    def _checker(self):
+        while True:
+            line = self.reqchannel.recv()
+            waiters = self.reqchannel[line]
+            del self.reqchannel[line]
+            for waiter in waiters:
+                if waiter.has_receiver():
+                    waiter.send(["abc", "def", "ghi"])
 
 class HomeLogicAPIServer(object):
     def __init__(self, dispatcher, logic):
@@ -18,8 +45,10 @@ class HomeLogicAPIServer(object):
             (re.compile('/$'), self.index),
             (re.compile('/relay/(on|off)/(\d+)$'), self.relay_onoff),
             (re.compile('/monitor$'), self.monitor),
+            (re.compile('/mlan/search/(\d+)$'), self.mlan_search),
         ]
         self.dispatcher.subscribe({}, EventReceiver(self))
+        self.mlanSearch = MlanSearch()
 
     def __call__(self, environ, start_response):
         try:
@@ -61,6 +90,12 @@ class HomeLogicAPIServer(object):
             raise BadRequestError("Relay number must be in range 1-30")
         self.logic.relay_set(num, True if cmd == "on" else False)
         return self.json(start_response, {"relay": num, "state": cmd})
+
+    def mlan_search(self, environ, start_response, line):
+        line = int(line)
+        if line < 0 or line > 2:
+            raise BadRequestError("Line number must be in range 0-2")
+        return self.json(start_response, {"devices": self.mlanSearch.search(line)})
 
     def load_params(self, environ):
         if "params" in environ:
