@@ -56,7 +56,7 @@ class Host(object):
     def send_raw(self, buf):
         "Send raw data without any checksuming and headers"
         with self._sendlock:
-            print "%s sent: %s" % (self._devname, ", ".join(["0x%02x" % d for d in buf]))
+            #print "%s sent: %s" % (self._devname, ", ".join(["0x%02x" % d for d in buf]))
             buf = ''.join([chr(a) for a in buf])
             with self.stream.get_writer() as writer:
                 writer.write_bytes(buf)
@@ -116,7 +116,7 @@ class Host(object):
                         else:
                             # check CRC
                             if _crc == 0:
-                                print "%s received: %s" % (self._devname, ", ".join(["0x%02x" % d for d in data]))
+                                #print "%s received: %s" % (self._devname, ", ".join(["0x%02x" % d for d in data]))
                                 if self._calibrated:
                                     if len(data) == 1 and (data[0] == ord('I') or data[0] == 0xf2):
                                         self._calibrated = False
