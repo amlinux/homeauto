@@ -66,7 +66,7 @@ def main():
                                 print "Line %d ConvertTemperature: %s" % (i + 1, type(e).__name__)
                             else:
                                 devs[i] = devices
-                Tasklet.sleep(1)
+                Tasklet.sleep(5)
                 print "---"
                 for i in xrange(0, 3):
                     devices = devs.get(i)
@@ -77,7 +77,7 @@ def main():
                                 print "ReadTemperature of %s: %.1f" % (dev, dispatcher.request(MicroLANReadTemperature(i, dev)))
                             except MicroLANError as e:
                                 print "ReadTemperature of %s: %s" % (dev, type(e).__name__)
-                Tasklet.sleep(1)
+                Tasklet.sleep(5)
 
         def b():
             while True:
@@ -102,7 +102,7 @@ def main():
                     dispatcher.relay_clear_all()
                     Tasklet.sleep(0.3)
 
-        #Tasklet.new(a)()
+        Tasklet.new(a)()
         #Tasklet.new(b)()
 
         logic = HomeLogic(dispatcher)
