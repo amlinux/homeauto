@@ -39,3 +39,14 @@ def monitor(state):
     if res.status_code != 200:
         raise RuntimeError("Could not query monitor: error %s" % res.status_code)
     return json.loads(res.body)
+
+def thermometers():
+    cnn = HTTPConnection()
+    addr = (hwserver, hwport)
+    cnn.connect(addr)
+    req = cnn.get("/temperature")
+    req.add_header("Connection", "close")
+    res = cnn.perform(req)
+    if res.status_code != 200:
+        raise RuntimeError("Could not query thermometers state: error %s" % res.status_code)
+    return json.loads(res.body)
