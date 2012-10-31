@@ -70,6 +70,8 @@ class Application(hwgui.Application):
                 name = sensorInfo["name"].get()
                 if type(name) == unicode:
                     name = name.encode("utf-8")
+                if type(sensorId) == unicode:
+                    sensorId = sensorId.encode("utf-8")
                 f.write("%s\t%d\t%s\n" % (sensorId, sensorInfo["line"], name))
 
     def createWidgets(self):
@@ -80,14 +82,14 @@ class Application(hwgui.Application):
         self.columnconfigure(0, weight=1)
         self.listsFrame = Frame(self, takefocus=0)
         self.listsFrame.grid(row=0, column=0, sticky=N+S+E+W)
-        self.listsFrame.rowconfigure(0, weight=1)
+        self.listsFrame.columnconfigure(0, weight=1)
 
         self.listBox = []
         for i in xrange(0, 3):
             fr = Frame(self.listsFrame,
                 padx=10,
                 pady=10,
-                takefocus=0
+                takefocus=0,
             )
             self.listsFrame.rowconfigure(i, weight=1)
             fr.grid(row=i, column=0, sticky=N+S+E+W)
@@ -131,6 +133,7 @@ def monitorHw(app):
             now = time.time()
             added = False
             okSensors = set()
+            alert = False
             for sensorId, sensorInfo in hwserver.hwclient.thermometers().iteritems():
                 if sensorInfo["timestamp"] < now - 15:
                     continue
@@ -139,6 +142,8 @@ def monitorHw(app):
                     app.listBox[sensorInfo["line"]].yview_moveto(1)
                     added = True
                 app.sensors[sensorId]["temperature"].set(u"%.1f\u2103" % sensorInfo["temp"])
+                if sensorInfo["temp"] > 100:
+                    alert = True
                 okSensors.add(sensorId)
             if added:
                 app.saveSensors()
@@ -146,7 +151,10 @@ def monitorHw(app):
             for sensorId, sensorInfo in app.sensors.iteritems():
                 if sensorId not in okSensors:
                     deleted = True
-            if added:
+                    app.sensors[sensorId]["temperature"].set("FAILURE")
+            if alert:
+                os.system("mplayer -really-quiet alarm.mp3 &")
+            elif added:
                 os.system("mplayer -really-quiet newdevice.mp3 &")
             elif deleted:
                 os.system("mplayer -really-quiet alarm.mp3 &")
