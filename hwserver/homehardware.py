@@ -173,7 +173,7 @@ class MicroLANListAll(object):
         try:
             buf = self.dispatcher.request(MicroLANSearchROM(self.line, prefix, buf))
         except MicroLANError as e:
-            print "Microlan strange behaviour. line=%s, prefix=%s, buf=%s, response: %s" % (self.line, prefix, buf, e)
+            print "Microlan strange behaviour. line=%s, prefix=%s, buf=%s, response: %s" % (self.line, prefix, buf, e.__class__.__name__)
             return []
         bits = buf[0]
         buf = buf[1:]
