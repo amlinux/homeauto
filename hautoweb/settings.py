@@ -1,6 +1,6 @@
 # Django settings for hautoweb project.
 
-from hwserver.config import *
+from hwserver.config import conf
 import os
 import re
 path = os.path.abspath(re.sub(r'\/[^\/]+$', '', __file__))
@@ -39,6 +39,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'hautoweb.debug.consoleexception.ConsoleExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'hautoweb.urls'

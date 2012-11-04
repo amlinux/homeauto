@@ -10,7 +10,7 @@ import django.core.handlers.wsgi
 from concurrence.http import WSGIServer
 from concurrence import dispatch, Tasklet
 import logging
-from hwserver.config import *
+from hwserver.config import conf, confInt
 
 def setupLogging():
     log = logging.getLogger("")
@@ -31,7 +31,7 @@ def main():
     try:
         setupLogging()
         server = WSGIServer(app_wrapper)
-        addr = conf('web', 'addr', '127.0.0.1')
+        addr = conf('web', 'addr', '0.0.0.0')
         port = confInt('web', 'port', 8080)
         server.serve((addr, port))
         logging.getLogger("hautowebsrv").info("Serving HTTP at %s:%s", addr, port)

@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^media(?P<path>/.*)$', 'django.views.static.serve', {'document_root': admin.__path__[0] + "/media/"}),
     (r'^hwdebug/', include('hautoweb.hwdebug.urls')),
+    (r'^api/', include('hautoweb.api.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns
