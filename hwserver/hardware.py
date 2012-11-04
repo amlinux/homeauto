@@ -116,7 +116,7 @@ class Host(object):
                         else:
                             # check CRC
                             if _crc == 0:
-                                #print "%s received: %s" % (self._devname, ", ".join(["0x%02x" % d for d in data]))
+                                #print "%s recv: %s" % (self._devname, ", ".join(["0x%02x" % d for d in data]))
                                 if self._calibrated:
                                     if len(data) == 1 and (data[0] == ord('I') or data[0] == 0xf2):
                                         self._calibrated = False
@@ -451,7 +451,7 @@ class BaudRateCalibrationRequest(Request):
     def send(self, host):
         Request.send(self, host)
         host.flush()
-        Tasklet.sleep(0.005)
+        #Tasklet.sleep(0.01)
         host.send_raw([0x55])
 
 class EventReceiver(object):

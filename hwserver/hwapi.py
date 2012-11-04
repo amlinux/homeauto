@@ -2,6 +2,7 @@ import re
 import json as json_module
 import cgi
 import logging
+import homehardware
 from concurrence import Channel, TimeoutError, Tasklet
 from hardware import EventReceiver
 
@@ -46,6 +47,7 @@ class HomeLogicAPIServer(object):
             (re.compile('/relay/(on|off)/(\d+)$'), self.relay_onoff),
             (re.compile('/monitor$'), self.monitor),
             (re.compile('/mlan/search/(\d+)$'), self.mlan_search),
+            (re.compile('/temperature$'), self.temperature),
         ]
         self.dispatcher.subscribe({}, EventReceiver(self))
         self.mlanSearch = MlanSearch()
@@ -76,7 +78,7 @@ class HomeLogicAPIServer(object):
         return ['<html><body><h1>404 Not Found</h1></body></html>']
 
     def json(self, start_response, obj):
-        data = json_module.dumps(obj).encode('utf-8')
+        data = json_module.dumps(obj, indent=4).encode('utf-8')
         start_response('200 OK', [
             ('Content-type', 'application/json'),
             ('Content-length', len(data)),
@@ -162,3 +164,6 @@ class HomeLogicAPIServer(object):
         for ch in waiters:
             if ch.has_receiver():
                 ch.send(state)
+
+    def temperature(self, environ, start_response):
+        return self.json(start_response, homehardware.tempCache)

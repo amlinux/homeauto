@@ -1,4 +1,7 @@
 from hardware import Dispatcher, Host, Request, Lock, ResponseError
+import time
+
+tempCache = {}
 
 class HardwareError(Exception):
     pass
@@ -207,6 +210,12 @@ class MicroLANReadTemperature(MicroLANRequest):
                 raise MicroLanTemperatureError()
             temp = res[1] * 256 + res[0]
             if temp & 0x8000:
-                temp = 0x8000 - temp
-            return temp / 16.0
+                temp -= 0x10000
+            temp = temp / 16.0
+            tempCache['-'.join(["%02x" % d for d in self.dev])] = {
+                "temp": temp,
+                "timestamp": time.time(),
+                "line": self.line,
+            }
+            return temp
 
