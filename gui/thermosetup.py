@@ -10,7 +10,7 @@ import time
 import os
 import tkFont
 
-temporarilyDisabledLines = set([0, 1])
+temporarilyDisabledLines = set([])
 
 class Application(hwgui.Application):
     def __init__(self, master=None):
