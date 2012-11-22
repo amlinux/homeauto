@@ -10,6 +10,8 @@ import time
 import os
 import tkFont
 
+temporarilyDisabledLines = set([0, 1])
+
 class Application(hwgui.Application):
     def __init__(self, master=None):
         self.sensors = {}
@@ -135,7 +137,7 @@ def monitorHw(app):
             okSensors = set()
             alert = False
             for sensorId, sensorInfo in hwserver.hwclient.thermometers().iteritems():
-                if sensorInfo["timestamp"] < now - 15:
+                if sensorInfo["timestamp"] < now - 20:
                     continue
                 if sensorId not in app.sensors:
                     app.addSensor(sensorId, sensorInfo["line"], sensorId)
@@ -143,15 +145,19 @@ def monitorHw(app):
                     added = True
                 app.sensors[sensorId]["temperature"].set(u"%.1f\u2103" % sensorInfo["temp"])
                 if sensorInfo["temp"] > 100:
-                    alert = True
+                    if sensorInfo["line"] not in temporarilyDisabledLines:
+                        alert = True
                 okSensors.add(sensorId)
             if added:
                 app.saveSensors()
             deleted = False
             for sensorId, sensorInfo in app.sensors.iteritems():
                 if sensorId not in okSensors:
-                    deleted = True
-                    app.sensors[sensorId]["temperature"].set("FAILURE")
+                    if sensorInfo["line"] in temporarilyDisabledLines:
+                        sensorInfo["temperature"].set("TEMP-FAILURE")
+                    else:
+                        deleted = True
+                        sensorInfo["temperature"].set("FAILURE")
             if alert:
                 os.system("mplayer -really-quiet alarm.mp3 &")
             elif added:
