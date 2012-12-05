@@ -206,7 +206,7 @@ symversion=0.1
 T 46800 44200 5 10 1 1 0 0 1
 value=0.01 uF, 630V
 T 46700 43800 5 10 0 0 0 0 1
-footprint=1206
+footprint=1806
 }
 C 46600 42900 1 90 0 resistor-2.sym
 {
@@ -292,7 +292,7 @@ symversion=0.1
 T 46800 41700 5 10 1 1 0 0 1
 value=0.01 uF, 630V
 T 46700 41300 5 10 0 0 0 0 1
-footprint=1206
+footprint=1806
 }
 C 46600 40400 1 90 0 resistor-2.sym
 {
@@ -378,7 +378,7 @@ symversion=0.1
 T 55300 49700 5 10 1 1 0 0 1
 value=0.01 uF, 630V
 T 55200 49300 5 10 0 0 0 0 1
-footprint=1206
+footprint=1806
 }
 C 55100 48400 1 90 0 resistor-2.sym
 {
@@ -464,7 +464,7 @@ symversion=0.1
 T 55300 47300 5 10 1 1 0 0 1
 value=0.01 uF, 630V
 T 55200 46900 5 10 0 0 0 0 1
-footprint=1206
+footprint=1806
 }
 C 55100 46000 1 90 0 resistor-2.sym
 {
@@ -550,7 +550,7 @@ symversion=0.1
 T 55100 44700 5 10 1 1 0 0 1
 value=0.01 uF, 630V
 T 55000 44300 5 10 0 0 0 0 1
-footprint=1206
+footprint=1806
 }
 C 54900 43400 1 90 0 resistor-2.sym
 {
@@ -636,7 +636,7 @@ symversion=0.1
 T 55100 42200 5 10 1 1 0 0 1
 value=0.01 uF, 630V
 T 55000 41800 5 10 0 0 0 0 1
-footprint=1206
+footprint=1806
 }
 C 54900 40900 1 90 0 resistor-2.sym
 {
