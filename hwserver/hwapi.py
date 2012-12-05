@@ -158,6 +158,7 @@ class HomeLogicAPIServer(object):
         return self.json(start_response, state)
 
     def event_relay(self, event):
+        print "Event_relay triggered"
         waiters = self.monitor_waiters
         self.monitor_waiters = []
         state = self.monitor_state()

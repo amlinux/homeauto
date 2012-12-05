@@ -46,6 +46,16 @@ class HomeLogic(object):
             elif btnCmd == 1:
                 btn = data.pop(0)
                 print "Pressed button %d" % btn
+                if btn == 0:
+                    relays = [1, 2, 4, 6, 7, 8]
+                    newState = True
+                    for relay in relays:
+                        if self.relayState.get(relay):
+                            newState = False
+                            break
+                    for relay in relays:
+                        self.relay_set(relay, newState)
+                    return
                 if btn == 27:
                     return
                 self.btnLongPress[btn] = False
@@ -56,7 +66,7 @@ class HomeLogic(object):
                 btn = data.pop(0)
                 duration = data.pop(0)
                 print "Button %d was pressed for %d sec" % (btn, duration)
-                if btn == 27:
+                if btn == 27 or btn == 0:
                     return
                 if duration == 3:
                     self.btnLongPress[btn] = True

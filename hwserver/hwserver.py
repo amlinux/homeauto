@@ -73,8 +73,10 @@ def main():
                     if devices:
                         print "Line %d" % (i + 1)
                         for dev in devices:
+                            Tasklet.sleep(0.1)
                             try:
-                                print "ReadTemperature of %s: %.1f" % (dev, dispatcher.request(MicroLANReadTemperature(i, dev)))
+                                #print "ReadTemperature of %s: %.1f" % (dev, dispatcher.request(MicroLANReadTemperature(i, dev)))
+                                dispatcher.request(MicroLANReadTemperature(i, dev))
                             except MicroLANError as e:
                                 print "ReadTemperature of %s: %s" % (dev, type(e).__name__)
                 Tasklet.sleep(2)

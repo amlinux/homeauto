@@ -462,5 +462,5 @@ class EventReceiver(object):
         method_name = "event_%s" % event["type"]
         method = getattr(self.recipient, method_name, None)
         if method:
-            method(event)
+            Tasklet.new(method)(event)
 
